@@ -23,23 +23,24 @@ public class CurrencyServlet extends HttpServlet {
         String pathInfo = req.getPathInfo();
         String currencyCode = getCurrencyCodeFromURL(pathInfo);
         Currency targetCurrency;
-        String jsonData;
+        String jsonData = "";
 
         if (database.openConnection()) {
             if (currencyCode.equals("")) {
                 resp.setStatus(400); // Код валюты отсутствует в адресе
+                jsonData = gson.toJson("message: Currency code is not present in url.");
             } else {
                 targetCurrency = repository.findCurrencyByCode(currencyCode);
                 if (targetCurrency != null) {
                     resp.setStatus(200); // Успех
                     jsonData = gson.toJson(targetCurrency);
-                    pw.write(jsonData);
                 } else resp.setStatus(404); // Валюта не найдена
             }
         }  else {
             resp.setStatus(500); // Ошибка (например, база данных недоступна)
         }
         database.closeConnection();
+        pw.write(jsonData);
     }
     private String getCurrencyCodeFromURL(String url) {
         if (url == null || url.equals("/")) {

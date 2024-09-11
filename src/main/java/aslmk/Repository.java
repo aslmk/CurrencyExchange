@@ -221,5 +221,29 @@ public class Repository {
         }
         return Double.NaN;
     }
+
+    public boolean updateRate(String baseCurrencyCode, String targetCurrencyCode, double rate) {
+        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).getId();
+        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).getId();
+        final String query = "UPDATE ExchangeRates SET Rate=? " +
+                "WHERE BaseCurrencyId=? AND TargetCurrencyId=?;";
+
+        try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
+            prStm.setDouble(1, rate);
+            prStm.setInt(2, baseCurrencyId);
+            prStm.setInt(3, targetCurrencyId);
+            int affectedRows = prStm.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Insert successful!");
+            } else {
+                System.out.println("Insert failed.");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }
 

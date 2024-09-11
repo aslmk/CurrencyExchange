@@ -70,7 +70,40 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.service(req, resp);
+        String method = req.getMethod();
+        if (method.equals("PATCH")) {
+            this.doPatch(req, resp);
+        } else super.service(req, resp);
+    }
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/x-www-form-urlencoded");
+        resp.setCharacterEncoding("UTF-8");
+
+        String pathInfo = req.getPathInfo();
+        String exchangeRateCode = getExchangeRateCodeFromURL(pathInfo);
+
+        double rate = Double.parseDouble(req.getParameter("rate"));
+
+        if (exchangeRateCode.length() != 6 && Double.isNaN(rate) || Double.toString(rate).equals("")) {
+            resp.setStatus(400);
+        } else {
+            String baseCurrencyCode = exchangeRateCode.substring(0,3);
+            String targetCurrencyCode = exchangeRateCode.substring(3, 6);
+
+            if (database.openConnection()) {
+                if (repository.findCurrencyByCode(baseCurrencyCode) != null &&
+                        repository.findCurrencyByCode(targetCurrencyCode) != null) {
+                    if (repository.updateRate(baseCurrencyCode, targetCurrencyCode, rate)) {
+                        resp.setStatus(200);
+                    }
+                } else {
+                    resp.setStatus(404);
+                }
+            } else {
+                resp.setStatus(500);
+            }
+            database.closeConnection();
+        }
     }
 
     @Override

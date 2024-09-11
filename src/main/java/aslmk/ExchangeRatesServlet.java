@@ -64,9 +64,6 @@ public class ExchangeRatesServlet extends HttpServlet {
         }
     }
 
-    // doPatch method does not support by javax.Servlet.HttpServlet because it uses http version 1.1.
-    // it means that I can not implement update rate
-
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.service(req, resp);

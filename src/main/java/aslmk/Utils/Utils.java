@@ -13,4 +13,17 @@ public class Utils {
         return currencyUrl;
 
     }
+    public static String getExchangeRateCodeFromURL(String url) {
+        if (url == null || url.equals("/")) {
+            return "";
+        }
+        String exchangeRateUrl = url.substring(1);
+
+        if (exchangeRateUrl.contains("/")) {
+            //currencyUrl = currencyUrl.substring(, url.indexOf("/"));
+            return "";
+        }
+        return exchangeRateUrl;
+
+    }
 }

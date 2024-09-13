@@ -1,5 +1,6 @@
 package aslmk;
 
+import aslmk.Utils.Utils;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
@@ -21,7 +22,7 @@ public class ExchangeRateServlet extends HttpServlet {
         Gson gson = new Gson();
 
         String pathInfo = req.getPathInfo();
-        String exchangeRateCode = getExchangeRateCodeFromURL(pathInfo);
+        String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
         String jsonData;
 
         if (exchangeRateCode.length() != 6) {
@@ -49,19 +50,6 @@ public class ExchangeRateServlet extends HttpServlet {
 
     }
 
-    private String getExchangeRateCodeFromURL(String url) {
-        if (url == null || url.equals("/")) {
-            return "";
-        }
-        String exchangeRateUrl = url.substring(1);
-
-        if (exchangeRateUrl.contains("/")) {
-            //currencyUrl = currencyUrl.substring(, url.indexOf("/"));
-            return "";
-        }
-        return exchangeRateUrl;
-
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -80,7 +68,7 @@ public class ExchangeRateServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String pathInfo = req.getPathInfo();
-        String exchangeRateCode = getExchangeRateCodeFromURL(pathInfo);
+        String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
 
         double rate = Double.parseDouble(req.getParameter("rate"));
 

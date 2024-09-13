@@ -5,7 +5,7 @@
          version="4.0">
     <servlet>
         <servlet-name>First-Servlet</servlet-name>
-        <servlet-class>aslmk.CurrencyServlet</servlet-class>
+        <servlet-class>aslmk.Servlets.CurrencyServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>First-Servlet</servlet-name>
@@ -13,7 +13,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>Second-Servlet</servlet-name>
-        <servlet-class>aslmk.CurrenciesServlet</servlet-class>
+        <servlet-class>aslmk.Servlets.CurrenciesServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Second-Servlet</servlet-name>
@@ -22,7 +22,7 @@
 
     <servlet>
         <servlet-name>Third-Servlet</servlet-name>
-        <servlet-class>aslmk.ExchangeRateServlet</servlet-class>
+        <servlet-class>aslmk.Servlets.ExchangeRateServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Third-Servlet</servlet-name>
@@ -30,7 +30,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>Fourth-Servlet</servlet-name>
-        <servlet-class>aslmk.ExchangeRatesServlet</servlet-class>
+        <servlet-class>aslmk.Servlets.ExchangeRatesServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Fourth-Servlet</servlet-name>
@@ -38,7 +38,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>Fifth-Servlet</servlet-name>
-        <servlet-class>aslmk.ExchangeServlet</servlet-class>
+        <servlet-class>aslmk.Servlets.ExchangeServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Fifth-Servlet</servlet-name>

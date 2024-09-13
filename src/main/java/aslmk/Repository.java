@@ -79,8 +79,8 @@ public class Repository {
         } else {
             String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?);";
             try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
-                int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).getId();
-                int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).getId();
+                int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).id();
+                int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).id();
                 prStm.setInt(1, baseCurrencyId);
                 prStm.setInt(2, targetCurrencyId);
                 prStm.setDouble(3, rate);
@@ -119,8 +119,8 @@ public class Repository {
         String query = "SELECT * FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ? LIMIT 1;";
 
         try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
-            prStm.setInt(1, findCurrencyByCode(baseCurrencyCode).getId());
-            prStm.setInt(2, findCurrencyByCode(targetCurrencyCode).getId());
+            prStm.setInt(1, findCurrencyByCode(baseCurrencyCode).id());
+            prStm.setInt(2, findCurrencyByCode(targetCurrencyCode).id());
             try (ResultSet rs = prStm.executeQuery()) {
                 // Если запись найдена, вернётся хотя бы одна строка
                 return rs.next();
@@ -165,8 +165,8 @@ public class Repository {
         return null;
     }
     public ExchangeRate findExchangeRateByCode(String baseCurrencyCode, String targetCurrencyCode) {
-        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).getId();
-        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).getId();
+        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).id();
+        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).id();
         String query = "SELECT * FROM ExchangeRates " +
                 "WHERE BaseCurrencyId="+baseCurrencyId+" AND TargetCurrencyId="+targetCurrencyId+";";
 
@@ -208,8 +208,8 @@ public class Repository {
 
     }
     private double getRate(String baseCurrencyCode, String targetCurrencyCode) {
-        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).getId();
-        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).getId();
+        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).id();
+        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).id();
         String query = "SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId="+baseCurrencyId+
                 " AND TargetCurrencyId="+targetCurrencyId;
 
@@ -224,8 +224,8 @@ public class Repository {
     }
 
     public boolean updateRate(String baseCurrencyCode, String targetCurrencyCode, double rate) {
-        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).getId();
-        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).getId();
+        int baseCurrencyId = findCurrencyByCode(baseCurrencyCode).id();
+        int targetCurrencyId = findCurrencyByCode(targetCurrencyCode).id();
         final String query = "UPDATE ExchangeRates SET Rate=? " +
                 "WHERE BaseCurrencyId=? AND TargetCurrencyId=?;";
 

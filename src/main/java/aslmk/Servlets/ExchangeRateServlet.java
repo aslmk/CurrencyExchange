@@ -1,6 +1,8 @@
-package aslmk;
+package aslmk.Servlets;
 
+import aslmk.Database;
 import aslmk.Models.ExchangeRate;
+import aslmk.Repository;
 import aslmk.Utils.Utils;
 import com.google.gson.Gson;
 

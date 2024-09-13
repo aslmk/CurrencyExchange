@@ -1,5 +1,7 @@
-package aslmk;
+package aslmk.Servlets;
 
+import aslmk.Database;
+import aslmk.Repository;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
@@ -9,11 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
-public class CurrenciesServlet extends HttpServlet {
-    private Database database = new Database();
-    private Repository repository = new Repository(database);
+public class ExchangeRatesServlet extends HttpServlet {
+    Database database = new Database();
+    Repository repository = new Repository(database);
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
@@ -23,7 +24,7 @@ public class CurrenciesServlet extends HttpServlet {
 
         String jsonData;
         if (database.openConnection()) {
-            jsonData = gson.toJson(repository.getCurrencies());
+            jsonData = gson.toJson(repository.getExchangeRates());
             resp.setStatus(200);
             pw.write(jsonData);
         } else {
@@ -35,26 +36,34 @@ public class CurrenciesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/x-www-form-urlencoded");
+        resp.setCharacterEncoding("UTF-8");
 
-        String currencyFullName = req.getParameter("name");
-        String currencyCode = req.getParameter("code");
-        String currencySign = req.getParameter("sign");
+        String baseCurrencyCode = req.getParameter("baseCurrencyCode");
+        String targetCurrencyCode = req.getParameter("targetCurrencyCode");
+        double rate = Double.parseDouble(req.getParameter("rate"));
 
-        // если нужно поле формы отсутсвует, то вернуть статус 400
-        if ((currencyFullName == null || currencyFullName.equals("")) ||
-            (currencyCode == null || currencyCode.equals("")) ||
-            (currencySign == null || currencySign.equals(""))) {
+        if (baseCurrencyCode == null || baseCurrencyCode.equals("") &&
+        targetCurrencyCode == null || targetCurrencyCode.equals("") &&
+                Double.isNaN(rate) || Double.toString(rate).equals("")) {
             resp.setStatus(400);
         } else {
             if (database.openConnection()) {
-                if (repository.addCurrency(currencyFullName, currencyCode, currencySign)) resp.setStatus(201);
-                else resp.setStatus(409);// if true then status 201 else 409
+                if (repository.findCurrencyByCode(baseCurrencyCode) != null &&
+                        repository.findCurrencyByCode(targetCurrencyCode) != null) {
+
+                    if (repository.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate)) {
+                        resp.setStatus(201);
+                    } else {
+                        resp.setStatus(409);
+                    }
+                } else {
+                    resp.setStatus(404);
+                }
             } else {
                 resp.setStatus(500);
             }
             database.closeConnection();
         }
-
     }
 
     @Override

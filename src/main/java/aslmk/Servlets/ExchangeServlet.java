@@ -1,6 +1,8 @@
-package aslmk;
+package aslmk.Servlets;
 
+import aslmk.Database;
 import aslmk.Models.Exchange;
+import aslmk.Repository;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
@@ -13,7 +15,7 @@ import java.io.PrintWriter;
 
 public class ExchangeServlet extends HttpServlet {
     private Database database = new Database();
-    private  Repository repository = new Repository(database);
+    private Repository repository = new Repository(database);
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/x-www-form-urlencoded");

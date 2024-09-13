@@ -1,5 +1,6 @@
 package aslmk;
 
+import aslmk.Utils.Utils;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
@@ -21,7 +22,7 @@ public class CurrencyServlet extends HttpServlet {
         Gson gson = new Gson();
 
         String pathInfo = req.getPathInfo();
-        String currencyCode = getCurrencyCodeFromURL(pathInfo);
+        String currencyCode = Utils.getCurrencyCodeFromURL(pathInfo);
         Currency targetCurrency;
         String jsonData = "";
 
@@ -41,19 +42,6 @@ public class CurrencyServlet extends HttpServlet {
         }
         database.closeConnection();
         pw.write(jsonData);
-    }
-    private String getCurrencyCodeFromURL(String url) {
-        if (url == null || url.equals("/")) {
-            return "";
-        }
-        String currencyUrl = url.substring(1);
-
-        if (currencyUrl.contains("/")) {
-            //currencyUrl = currencyUrl.substring(, url.indexOf("/"));
-            return "";
-        }
-        return currencyUrl;
-
     }
 
     @Override

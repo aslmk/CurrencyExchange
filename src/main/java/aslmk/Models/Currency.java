@@ -1,4 +1,4 @@
-package aslmk;
+package aslmk.Models;
 
 public class Currency {
     private int id;

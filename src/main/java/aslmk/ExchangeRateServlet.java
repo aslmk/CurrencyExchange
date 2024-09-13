@@ -1,5 +1,6 @@
 package aslmk;
 
+import aslmk.Models.ExchangeRate;
 import aslmk.Utils.Utils;
 import com.google.gson.Gson;
 
@@ -49,13 +50,10 @@ public class ExchangeRateServlet extends HttpServlet {
         }
 
     }
-
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doPost(req, resp);
     }
-
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String method = req.getMethod();
@@ -63,6 +61,7 @@ public class ExchangeRateServlet extends HttpServlet {
             this.doPatch(req, resp);
         } else super.service(req, resp);
     }
+
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/x-www-form-urlencoded");
         resp.setCharacterEncoding("UTF-8");

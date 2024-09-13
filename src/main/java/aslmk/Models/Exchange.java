@@ -1,4 +1,6 @@
-package aslmk;
+package aslmk.Models;
+
+import aslmk.Models.Currency;
 
 public class Exchange {
     private Currency baseCurrency;

@@ -1,12 +1,13 @@
 package aslmk;
 
+import aslmk.Models.Currency;
+import aslmk.Models.Exchange;
+import aslmk.Models.ExchangeRate;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DecimalFormat;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 
 public class Repository {

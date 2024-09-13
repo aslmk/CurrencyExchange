@@ -1,5 +1,6 @@
 package aslmk;
 
+import aslmk.Models.Exchange;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;

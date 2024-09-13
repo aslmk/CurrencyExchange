@@ -1,5 +1,6 @@
 package aslmk;
 
+import aslmk.Models.Currency;
 import aslmk.Utils.Utils;
 import com.google.gson.Gson;
 

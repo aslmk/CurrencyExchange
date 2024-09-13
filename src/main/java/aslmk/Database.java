@@ -1,8 +1,12 @@
 package aslmk;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.net.URL;
 
 public class Database {
     private Connection connection = null;
@@ -14,9 +18,14 @@ public class Database {
             e.printStackTrace();
         }
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:C:/Users/Lenovo/Desktop/CurrencyExchange.db");
+            URL resource = Database.class.getClassLoader().getResource("CurrencyExchange.db");
+            if (resource == null) {
+                throw new FileNotFoundException("Database file does not found in resources folder");
+            }
+            String path = new File(resource.toURI()).getAbsolutePath();
+            connection = DriverManager.getConnection(String.format("jdbc:sqlite:%s", path));
             return true;
-        } catch (SQLException e) {
+        } catch (SQLException | FileNotFoundException | URISyntaxException e) {
             e.printStackTrace();
             return false;
         }

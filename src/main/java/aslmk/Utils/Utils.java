@@ -26,4 +26,5 @@ public class Utils {
         return exchangeRateUrl;
 
     }
+
 }

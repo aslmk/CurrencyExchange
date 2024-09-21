@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Objects;
 
 public class Utils {
     public static String getCurrencyCodeFromURL(String url) {
@@ -40,5 +39,13 @@ public class Utils {
         PrintWriter pw = resp.getWriter();
         Gson gson = new Gson();
         pw.write(gson.toJson(object));
+    }
+    public static void postResponse(HttpServletResponse resp, int statusCode) throws IOException {
+        resp.setStatus(statusCode);
+        resp.setContentType("application/x-www-form-urlencoded");
+        resp.setCharacterEncoding("UTF-8");
+        PrintWriter pw = resp.getWriter();
+        pw.write("{\"message\": \"" + "Currency successfully added!" + "\"}");
+        pw.flush();
     }
 }

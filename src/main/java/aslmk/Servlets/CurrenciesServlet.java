@@ -1,8 +1,10 @@
 package aslmk.Servlets;
 
-import aslmk.Database;
-import aslmk.Repository;
-import com.google.gson.Gson;
+import aslmk.DAO.CurrencyDAO;
+import aslmk.Utils.ResponseHandlingUtil;
+import aslmk.Utils.Utils;
+import aslmk.Utils.ValidationException;
+import aslmk.Utils.ValidationUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -10,52 +12,51 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.sql.SQLException;
 
 public class CurrenciesServlet extends HttpServlet {
-    private Database database = new Database();
-    private Repository repository = new Repository(database);
+    CurrencyDAO currencyDAO = new CurrencyDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter pw = resp.getWriter();
-        Gson gson = new Gson();
-
-        String jsonData;
-        if (database.openConnection()) {
-            jsonData = gson.toJson(repository.getCurrencies());
-            resp.setStatus(200);
-            pw.write(jsonData);
-        } else {
-            resp.setStatus(500);
+        try {
+            Utils.setResponse(resp, currencyDAO.getCurrencies());
+        } catch (SQLException e) {
+            ResponseHandlingUtil.dataBaseMessage(resp);
         }
-        database.closeConnection();
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/x-www-form-urlencoded");
-
         String currencyFullName = req.getParameter("name");
         String currencyCode = req.getParameter("code");
         String currencySign = req.getParameter("sign");
 
-        // если нужно поле формы отсутсвует, то вернуть статус 400
-        if ((currencyFullName == null || currencyFullName.equals("")) ||
-            (currencyCode == null || currencyCode.equals("")) ||
-            (currencySign == null || currencySign.equals(""))) {
-            resp.setStatus(400);
-        } else {
-            if (database.openConnection()) {
-                if (repository.addCurrency(currencyFullName, currencyCode, currencySign)) resp.setStatus(201);
-                else resp.setStatus(409);// if true then status 201 else 409
-            } else {
-                resp.setStatus(500);
+        try {
+            if (!ValidationUtil.isParameters(currencyFullName, currencyCode, currencySign)) {
+                throw new ValidationException();
             }
-            database.closeConnection();
+            currencyDAO.addCurrency(currencyFullName, currencyCode, currencySign);
+            Utils.postResponse(resp, 201);
+        } catch (ValidationException e) {
+            ResponseHandlingUtil.notEnoughParametersMessage(resp);
+        } catch (SQLException e) {
+            int errorCode = e.getErrorCode();
+            if (errorCode == 14) { // SQL Internal server error
+                ResponseHandlingUtil.dataBaseMessage(resp);
+            } else if (errorCode == 19) { // SQL constraint
+                ResponseHandlingUtil.alreadyExistsMessage(resp);
+            }
         }
+
+//        else {
+//            if (database.openConnection()) {
+//                if (repository.addCurrency(currencyFullName, currencyCode, currencySign)) resp.setStatus(201);
+//                else resp.setStatus(409);// if true then status 201 else 409
+//            } else {
+//                resp.setStatus(500);
+//            }
+//            database.closeConnection();
+//        }
 
     }
 

@@ -1,11 +1,9 @@
 package aslmk.Servlets;
 
 import aslmk.DAO.CurrencyDAO;
-import aslmk.Database;
 import aslmk.Models.Currency;
-import aslmk.Repository;
 import aslmk.Service.CurrencyService;
-import aslmk.Utils.Exceptions.ValidationException;
+import aslmk.Utils.ValidationException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
 import aslmk.Utils.ValidationUtil;
@@ -21,17 +19,10 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 
 public class CurrencyServlet extends HttpServlet {
-    private Database database = new Database();
-    private Repository repository = new Repository(database);
     private CurrencyDAO currencyDAO = new CurrencyDAO();
     private CurrencyService currencyService = new CurrencyService();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter pw = resp.getWriter();
-        Gson gson = new Gson();
-        String jsonData = "";
         String pathInfo = req.getPathInfo();
         String currencyCode = Utils.getCurrencyCodeFromURL(pathInfo);
 
@@ -41,20 +32,15 @@ public class CurrencyServlet extends HttpServlet {
             }
             Currency targetCurrency = currencyDAO.findCurrencyByCode(currencyCode);
             if (targetCurrency != null) {
-                jsonData = gson.toJson(targetCurrency);
+                Utils.setResponse(resp, targetCurrency);
             } else {
                 ResponseHandlingUtil.currencyNotFoundMessage(resp);
-                return;
-
             }
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
-            return;
         } catch (ValidationException e) {
-            ResponseHandlingUtil.sendError(resp, 400, "It is not currency code!");
+            ResponseHandlingUtil.sendError(resp, resp.SC_BAD_REQUEST, e.getMessage());
         }
-
-        pw.write(jsonData);
     }
 
     @Override

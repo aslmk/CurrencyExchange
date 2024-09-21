@@ -1,6 +1,9 @@
-package aslmk.Utils.Exceptions;
+package aslmk.Utils;
 
 public class ValidationException extends RuntimeException {
+    public ValidationException() {
+
+    }
     public ValidationException(String message) {
         super(message);
     }

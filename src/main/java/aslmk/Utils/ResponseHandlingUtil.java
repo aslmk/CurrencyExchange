@@ -22,10 +22,10 @@ public class ResponseHandlingUtil {
     public static void currencyNotFoundMessage(HttpServletResponse resp) throws IOException {
         sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Currency not found!");
     }
-    public void notEnoughParametersMessage(HttpServletResponse resp) throws IOException {
-        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Not enough parameters!");
+    public static void notEnoughParametersMessage(HttpServletResponse resp) throws IOException {
+        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Not enough parameters or it is not parameters!");
     }
-    public void alreadyExistsMessage(HttpServletResponse resp) throws IOException {
+    public static void alreadyExistsMessage(HttpServletResponse resp) throws IOException {
         sendError(resp, HttpServletResponse.SC_CONFLICT, "Currency already exists!");
     }
 

@@ -13,7 +13,7 @@ public class CurrencyDAO {
     //Database database = database.getInstance();
     private static Database database = new Database();
 
-    public static void addCurrency(String fullName, String code, String sign) {
+    public static void addCurrency(String fullName, String code, String sign) throws SQLException {
         String query = "INSERT INTO Currencies (fullName,code,sign) VALUES (?, ?, ?);";
 
         try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
@@ -23,11 +23,9 @@ public class CurrencyDAO {
             prStm.setString(3, sign);
 
             prStm.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
-    public Currency findCurrencyByCode(String code) {
+    public Currency findCurrencyByCode(String code) throws SQLException {
         String query = "SELECT * FROM Currencies WHERE code='"+code+"';";
 
         try (Statement stm = database.getConnection().createStatement()) {
@@ -38,13 +36,10 @@ public class CurrencyDAO {
                         rs.getString("sign"),
                         rs.getString("fullName"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
         return null;
     }
-    public ArrayList<Currency> getCurrencies() {
+    public ArrayList<Currency> getCurrencies() throws SQLException {
         ArrayList<Currency> currencies = new ArrayList<>();
         String query = "SELECT * FROM Currencies;";
         try (Statement stm = database.getConnection().createStatement()) {
@@ -55,12 +50,10 @@ public class CurrencyDAO {
                         rs.getString("sign"),
                         rs.getString("fullName")));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return currencies;
     }
-    private Currency findCurrencyById(int id) {
+    private Currency findCurrencyById(int id) throws SQLException {
         String query = "SELECT * FROM Currencies WHERE id="+id+";";
 
         try (Statement stm = database.getConnection().createStatement()) {
@@ -71,8 +64,6 @@ public class CurrencyDAO {
                         rs.getString("sign"),
                         rs.getString("fullName"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
 
         return null;

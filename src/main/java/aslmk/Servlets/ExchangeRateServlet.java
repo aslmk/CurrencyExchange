@@ -1,9 +1,14 @@
 package aslmk.Servlets;
 
+import aslmk.DAO.CurrencyDAO;
+import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Database;
 import aslmk.Models.ExchangeRate;
 import aslmk.Repository;
+import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
+import aslmk.Utils.ValidationException;
+import aslmk.Utils.ValidationUtil;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
@@ -13,43 +18,55 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 public class ExchangeRateServlet extends HttpServlet {
-    Database database = new Database();
-    Repository repository = new Repository(database);
+    ExchangeRateDAO exchangeRateDao = new ExchangeRateDAO();
+    CurrencyDAO currencyDAO = new CurrencyDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter pw = resp.getWriter();
-        Gson gson = new Gson();
-
         String pathInfo = req.getPathInfo();
         String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
-        String jsonData;
 
-        if (exchangeRateCode.length() != 6) {
-            resp.setStatus(400);
-        }
-        else {
-            String baseCurrencyCode = exchangeRateCode.substring(0,3);
-            String targetCurrencyCode = exchangeRateCode.substring(3, 6);
-            if (database.openConnection()) {
-                ExchangeRate exchangeRate = repository.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
-                if (exchangeRate != null) {
-                    resp.setStatus(200); // Успех
-                    jsonData = gson.toJson(exchangeRate);
-                    pw.write(jsonData);
-                } else {
-                    resp.setStatus(404);
-                }
+        try {
+            if (!ValidationUtil.isExchangeRateCode(exchangeRateCode)) {
+                throw new ValidationException("Incorrect exchange rate code!");
             } else {
-                resp.setStatus(500);
+                String baseCurrencyCode = exchangeRateCode.substring(0,3);
+                String targetCurrencyCode = exchangeRateCode.substring(3, 6);
+                ExchangeRate exchangeRate = exchangeRateDao.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
+                if (exchangeRate != null) {
+                    Utils.setResponse(resp, exchangeRate);
+                } else {
+                    ResponseHandlingUtil.currencyNotFoundMessage(resp);
+                }
             }
-            database.closeConnection();
-
-
+        } catch (ValidationException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (SQLException e) {
+            ResponseHandlingUtil.dataBaseMessage(resp);
         }
+
+
+//        else {
+//            String baseCurrencyCode = exchangeRateCode.substring(0,3);
+//            String targetCurrencyCode = exchangeRateCode.substring(3, 6);
+//            if (database.openConnection()) {
+//                ExchangeRate exchangeRate = repository.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
+//                if (exchangeRate != null) {
+//                    resp.setStatus(200); // Успех
+//                    jsonData = gson.toJson(exchangeRate);
+//                    pw.write(jsonData);
+//                } else {
+//                    resp.setStatus(404);
+//                }
+//            } else {
+//                resp.setStatus(500);
+//            }
+//            database.closeConnection();
+//
+//
+//        }
 
     }
     @Override
@@ -73,25 +90,23 @@ public class ExchangeRateServlet extends HttpServlet {
 
         double rate = Double.parseDouble(req.getParameter("rate"));
 
-        if (exchangeRateCode.length() != 6 && Double.isNaN(rate) || Double.toString(rate).equals("")) {
-            resp.setStatus(400);
-        } else {
+        try {
+            if (!ValidationUtil.isExchangeRateCode(exchangeRateCode, rate)) {
+                throw new ValidationException("Incorrect exchange rate or not enough parameters!");
+            }
             String baseCurrencyCode = exchangeRateCode.substring(0,3);
             String targetCurrencyCode = exchangeRateCode.substring(3, 6);
 
-            if (database.openConnection()) {
-                if (repository.findCurrencyByCode(baseCurrencyCode) != null &&
-                        repository.findCurrencyByCode(targetCurrencyCode) != null) {
-                    if (repository.updateRate(baseCurrencyCode, targetCurrencyCode, rate)) {
-                        resp.setStatus(200);
-                    }
-                } else {
-                    resp.setStatus(404);
-                }
+            if (currencyDAO.findCurrencyByCode(baseCurrencyCode) != null &&
+            currencyDAO.findCurrencyByCode(targetCurrencyCode) != null) {
+                exchangeRateDao.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
             } else {
-                resp.setStatus(500);
+                ResponseHandlingUtil.currencyNotFoundMessage(resp);
             }
-            database.closeConnection();
+        } catch (ValidationException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (SQLException e) {
+            ResponseHandlingUtil.dataBaseMessage(resp);
         }
     }
 

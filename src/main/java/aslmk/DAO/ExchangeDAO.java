@@ -2,6 +2,7 @@ package aslmk.DAO;
 
 import aslmk.Database;
 import aslmk.Models.Exchange;
+import aslmk.Utils.ExchangeRateNotFoundException;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 
 public class ExchangeDAO {
     CurrencyDAO currencyDAO = new CurrencyDAO();
-    private static Database database = new Database();
+    private static Database database = Database.getInstance();
     public Exchange exchange(String baseCurrencyCode, String targetCurrencyCode, double amount) throws SQLException {
         double rate = getExchangeRate(baseCurrencyCode, targetCurrencyCode);
         double convertedAmount = calculateConvertedAmount(rate, amount);
@@ -24,7 +25,7 @@ public class ExchangeDAO {
         );
     }
 
-    private double getExchangeRate(String baseCurrencyCode, String targetCurrencyCode) throws SQLException {
+    private double getExchangeRate(String baseCurrencyCode, String targetCurrencyCode) throws SQLException, ExchangeRateNotFoundException {
         if (exchangeRateExists(baseCurrencyCode, targetCurrencyCode)) {
             return getRate(baseCurrencyCode, targetCurrencyCode);
         } else if (exchangeRateExists(targetCurrencyCode, baseCurrencyCode)) {
@@ -35,7 +36,7 @@ public class ExchangeDAO {
             double usdToTarget = getRate("USD", targetCurrencyCode);
             return Math.round((usdToBase * usdToTarget) * 100.0) / 100.0;
         } else {
-            throw new SQLException("Курс валют для данной пары не найден");
+            throw new ExchangeRateNotFoundException("Курс валют для данной пары не найден");
         }
     }
 
@@ -46,7 +47,6 @@ public class ExchangeDAO {
     private double getRate(String baseCurrencyCode, String targetCurrencyCode) throws SQLException {
         int baseCurrencyId = currencyDAO.findCurrencyByCode(baseCurrencyCode).id();
         int targetCurrencyId = currencyDAO.findCurrencyByCode(targetCurrencyCode).id();
-        database.openConnection();
         String query = "SELECT Rate FROM ExchangeRates WHERE BaseCurrencyId="+baseCurrencyId+
                 " AND TargetCurrencyId="+targetCurrencyId;
 
@@ -58,7 +58,6 @@ public class ExchangeDAO {
     }
     private boolean exchangeRateExists(String baseCurrencyCode, String targetCurrencyCode) {
         String query = "SELECT * FROM ExchangeRates WHERE BaseCurrencyId = ? AND TargetCurrencyId = ? LIMIT 1;";
-        database.openConnection();
         try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
             prStm.setInt(1, currencyDAO.findCurrencyByCode(baseCurrencyCode).id());
             prStm.setInt(2, currencyDAO.findCurrencyByCode(targetCurrencyCode).id());

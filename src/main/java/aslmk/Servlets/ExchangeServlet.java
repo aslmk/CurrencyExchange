@@ -5,10 +5,7 @@ import aslmk.DAO.ExchangeDAO;
 import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Database;
 import aslmk.Models.Exchange;
-import aslmk.Utils.ResponseHandlingUtil;
-import aslmk.Utils.Utils;
-import aslmk.Utils.ValidationException;
-import aslmk.Utils.ValidationUtil;
+import aslmk.Utils.*;
 import com.google.gson.Gson;
 import jdk.jshell.execution.Util;
 
@@ -22,7 +19,6 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
-    ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
     CurrencyDAO currencyDAO = new CurrencyDAO();
     ExchangeDAO exchangeDAO = new ExchangeDAO();
     @Override
@@ -39,8 +35,10 @@ public class ExchangeServlet extends HttpServlet {
                         currencyDAO.findCurrencyByCode(toCurrency) != null) {
                     Exchange exchange = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
                     if (exchange != null) {
-                        Utils.postResponse(resp, 201);
-                        Utils.setResponse(resp, exchange);
+                        Utils.postResponse(resp, 200);
+                        PrintWriter pw = resp.getWriter();
+                        Gson gson = new Gson();
+                        pw.write(gson.toJson(exchange));
                     }
                 } else {
                     ResponseHandlingUtil.currencyNotFoundMessage(resp);
@@ -50,6 +48,8 @@ public class ExchangeServlet extends HttpServlet {
             ResponseHandlingUtil.notEnoughParametersMessage(resp);
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
+        } catch (ExchangeRateNotFoundException e) {
+            ResponseHandlingUtil.sendError(resp, 404, e.getMessage());
         }
     }
 

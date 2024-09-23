@@ -13,7 +13,8 @@ public class CurrencyDAO {
     //Database database = database.getInstance();
     private static Database database = new Database();
 
-    public static void addCurrency(String fullName, String code, String sign) throws SQLException {
+    public void addCurrency(String fullName, String code, String sign) throws SQLException {
+        database.openConnection();
         String query = "INSERT INTO Currencies (fullName,code,sign) VALUES (?, ?, ?);";
 
         try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
@@ -24,8 +25,10 @@ public class CurrencyDAO {
 
             prStm.execute();
         }
+        database.closeConnection();
     }
     public Currency findCurrencyByCode(String code) throws SQLException {
+        database.openConnection();
         String query = "SELECT * FROM Currencies WHERE code='"+code+"';";
 
         try (Statement stm = database.getConnection().createStatement()) {
@@ -37,9 +40,11 @@ public class CurrencyDAO {
                         rs.getString("fullName"));
             }
         }
+        database.closeConnection();
         return null;
     }
     public ArrayList<Currency> getCurrencies() throws SQLException {
+        database.openConnection();
         ArrayList<Currency> currencies = new ArrayList<>();
         String query = "SELECT * FROM Currencies;";
         try (Statement stm = database.getConnection().createStatement()) {
@@ -51,9 +56,10 @@ public class CurrencyDAO {
                         rs.getString("fullName")));
             }
         }
+        database.closeConnection();
         return currencies;
     }
-    private Currency findCurrencyById(int id) throws SQLException {
+    public Currency findCurrencyById(int id) throws SQLException {
         String query = "SELECT * FROM Currencies WHERE id="+id+";";
 
         try (Statement stm = database.getConnection().createStatement()) {

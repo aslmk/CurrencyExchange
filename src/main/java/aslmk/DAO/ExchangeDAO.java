@@ -3,6 +3,7 @@ package aslmk.DAO;
 import aslmk.Database;
 import aslmk.Models.Exchange;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

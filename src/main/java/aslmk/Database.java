@@ -10,6 +10,14 @@ import java.net.URL;
 
 public class Database {
     private Connection connection = null;
+    //private static Database instance = null;
+    //private Database() {}
+    /*public static Database getInstance() {
+        if (instance == null) {
+            instance = new Database();
+        }
+        return instance;
+    }*/
 
     public boolean openConnection() {
         try {

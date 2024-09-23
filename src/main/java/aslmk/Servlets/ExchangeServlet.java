@@ -1,9 +1,16 @@
 package aslmk.Servlets;
 
+import aslmk.DAO.CurrencyDAO;
+import aslmk.DAO.ExchangeDAO;
+import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Database;
 import aslmk.Models.Exchange;
-import aslmk.Repository;
+import aslmk.Utils.ResponseHandlingUtil;
+import aslmk.Utils.Utils;
+import aslmk.Utils.ValidationException;
+import aslmk.Utils.ValidationUtil;
 import com.google.gson.Gson;
+import jdk.jshell.execution.Util;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -12,45 +19,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
-    private Database database = new Database();
-    private Repository repository = new Repository(database);
+    ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
+    CurrencyDAO currencyDAO = new CurrencyDAO();
+    ExchangeDAO exchangeDAO = new ExchangeDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/x-www-form-urlencoded");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter pw = resp.getWriter();
-        Gson gson = new Gson();
-        String jsonData;
-
         String fromCurrency = req.getParameter("from");
         String toCurrency = req.getParameter("to");
         double amount = Double.parseDouble(req.getParameter("amount"));
 
-        if (fromCurrency == null || fromCurrency.equals("") &&
-                toCurrency == null || toCurrency.equals("") &&
-                Double.isNaN(amount) || Double.toString(amount).equals("")) {
-            resp.setStatus(400);
-        } else {
-            if (database.openConnection()) {
-                if (repository.findCurrencyByCode(fromCurrency) != null &&
-                        repository.findCurrencyByCode(toCurrency) != null) {
-                    Exchange exchange = repository.exchange(fromCurrency, toCurrency, amount);
+        try {
+            if (!ValidationUtil.isExchangeRateParameters(fromCurrency, toCurrency, amount)) {
+                throw new ValidationException();
+            } else {
+                if (currencyDAO.findCurrencyByCode(fromCurrency) != null &&
+                        currencyDAO.findCurrencyByCode(toCurrency) != null) {
+                    Exchange exchange = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
                     if (exchange != null) {
-                        resp.setStatus(201);
-                        jsonData = gson.toJson(exchange);
-                        pw.write(jsonData);
+                        Utils.postResponse(resp, 201);
+                        Utils.setResponse(resp, exchange);
                     }
                 } else {
-                    resp.setStatus(404);
+                    ResponseHandlingUtil.currencyNotFoundMessage(resp);
                 }
-            } else {
-                resp.setStatus(500);
             }
-            database.closeConnection();
+        } catch (ValidationException e) {
+            ResponseHandlingUtil.notEnoughParametersMessage(resp);
+        } catch (SQLException e) {
+            ResponseHandlingUtil.dataBaseMessage(resp);
         }
-
     }
 
     @Override

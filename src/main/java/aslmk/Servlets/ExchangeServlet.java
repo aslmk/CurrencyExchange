@@ -19,7 +19,6 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
-    CurrencyDAO currencyDAO = new CurrencyDAO();
     ExchangeDAO exchangeDAO = new ExchangeDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

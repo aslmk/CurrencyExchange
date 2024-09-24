@@ -3,6 +3,9 @@ package aslmk.DAO;
 import aslmk.Database;
 import aslmk.Models.Currency;
 import aslmk.Models.ExchangeRate;
+import aslmk.Utils.CurrencyNotFoundException;
+import aslmk.Utils.ValidationException;
+import aslmk.Utils.ValidationUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,9 +19,20 @@ public class ExchangeRateDAO {
 
     public void addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, Double rate) throws SQLException {
         String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?);";
+
+        Currency baseCurrency = currencyDAO.findCurrencyByCode(baseCurrencyCode);
+        Currency targetCurrency = currencyDAO.findCurrencyByCode(targetCurrencyCode);
+
+        if (baseCurrency == null) {
+            throw new CurrencyNotFoundException("Base currency not found: " + baseCurrencyCode);
+        }
+        if (targetCurrency == null) {
+            throw new CurrencyNotFoundException("Target currency not found: " + targetCurrencyCode);
+        }
+
         try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
-            int baseCurrencyId = currencyDAO.findCurrencyByCode(baseCurrencyCode).id();
-            int targetCurrencyId = currencyDAO.findCurrencyByCode(targetCurrencyCode).id();
+            int baseCurrencyId = baseCurrency.id();
+            int targetCurrencyId = targetCurrency.id();
 
             prStm.setInt(1, baseCurrencyId);
             prStm.setInt(2, targetCurrencyId);

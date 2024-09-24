@@ -3,10 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Database;
-import aslmk.Utils.ResponseHandlingUtil;
-import aslmk.Utils.Utils;
-import aslmk.Utils.ValidationException;
-import aslmk.Utils.ValidationUtil;
+import aslmk.Utils.*;
 import com.google.gson.Gson;
 import jdk.jshell.execution.Util;
 
@@ -41,13 +38,8 @@ public class ExchangeRatesServlet extends HttpServlet {
                 throw new ValidationException("Incorrect or not enough parameters!");
             }
 
-            if (currencyDAO.findCurrencyByCode(baseCurrencyCode) != null &&
-                    currencyDAO.findCurrencyByCode(targetCurrencyCode) != null) {
-                exchangeRateDAO.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);
-                Utils.postResponse(resp, 201);
-            } else {
-                ResponseHandlingUtil.currencyNotFoundMessage(resp);
-            }
+            exchangeRateDAO.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);
+            Utils.postResponse(resp, 201);
 
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -58,6 +50,8 @@ public class ExchangeRatesServlet extends HttpServlet {
             } else if (errorCode == 19) { // SQL constraint
                 ResponseHandlingUtil.alreadyExistsMessage(resp);
             }
+        } catch (CurrencyNotFoundException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         }
     }
 

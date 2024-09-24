@@ -31,17 +31,12 @@ public class ExchangeServlet extends HttpServlet {
             if (!ValidationUtil.isExchangeRateParameters(fromCurrency, toCurrency, amount)) {
                 throw new ValidationException();
             } else {
-                if (currencyDAO.findCurrencyByCode(fromCurrency) != null &&
-                        currencyDAO.findCurrencyByCode(toCurrency) != null) {
-                    Exchange exchange = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
-                    if (exchange != null) {
-                        Utils.postResponse(resp, 200);
-                        PrintWriter pw = resp.getWriter();
-                        Gson gson = new Gson();
-                        pw.write(gson.toJson(exchange));
-                    }
-                } else {
-                    ResponseHandlingUtil.currencyNotFoundMessage(resp);
+                Exchange exchange = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
+                if (exchange != null) {
+                    Utils.postResponse(resp, 200);
+                    PrintWriter pw = resp.getWriter();
+                    Gson gson = new Gson();
+                    pw.write(gson.toJson(exchange));
                 }
             }
         } catch (ValidationException e) {

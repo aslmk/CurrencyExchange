@@ -2,9 +2,8 @@ package aslmk.DAO;
 
 import aslmk.Database;
 import aslmk.Models.Exchange;
-import aslmk.Utils.ExchangeRateNotFoundException;
+import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +11,7 @@ import java.sql.SQLException;
 public class ExchangeDAO {
     CurrencyDAO currencyDAO = new CurrencyDAO();
     private static Database database = Database.getInstance();
-    public Exchange exchange(String baseCurrencyCode, String targetCurrencyCode, double amount) throws SQLException {
+    public Exchange exchange(String baseCurrencyCode, String targetCurrencyCode, double amount) throws SQLException, ExchangeRateNotFoundException {
         double rate = getExchangeRate(baseCurrencyCode, targetCurrencyCode);
         double convertedAmount = calculateConvertedAmount(rate, amount);
 
@@ -36,7 +35,7 @@ public class ExchangeDAO {
             double usdToTarget = getRate("USD", targetCurrencyCode);
             return Math.round((usdToBase * usdToTarget) * 100.0) / 100.0;
         } else {
-            throw new ExchangeRateNotFoundException("Курс валют для данной пары не найден");
+            throw new ExchangeRateNotFoundException("The exchange rate for this pair was not found");
         }
     }
 

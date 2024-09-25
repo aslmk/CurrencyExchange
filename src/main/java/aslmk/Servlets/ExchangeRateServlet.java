@@ -2,13 +2,12 @@ package aslmk.Servlets;
 
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
-import aslmk.Database;
 import aslmk.Models.ExchangeRate;
+import aslmk.Utils.Exceptions.ParamNotFoundException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
-import aslmk.Utils.ValidationException;
+import aslmk.Utils.Exceptions.ValidationException;
 import aslmk.Utils.ValidationUtil;
-import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -16,19 +15,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 
 public class ExchangeRateServlet extends HttpServlet {
     ExchangeRateDAO exchangeRateDao = new ExchangeRateDAO();
-    CurrencyDAO currencyDAO = new CurrencyDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
         String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
 
         try {
-            if (!ValidationUtil.isExchangeRateCode(exchangeRateCode)) {
+            if (!ValidationUtil.isExchangeRateCodeValid(exchangeRateCode)) {
                 throw new ValidationException("Incorrect exchange rate code!");
             } else {
                 String baseCurrencyCode = exchangeRateCode.substring(0,3);
@@ -81,31 +79,36 @@ public class ExchangeRateServlet extends HttpServlet {
     }
 
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/x-www-form-urlencoded");
         resp.setCharacterEncoding("UTF-8");
 
         String pathInfo = req.getPathInfo();
         String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
-
-        double rate = Double.parseDouble(req.getParameter("rate"));
+        double rate;
 
         try {
-            if (!ValidationUtil.isExchangeRateCode(exchangeRateCode, rate)) {
-                throw new ValidationException("Incorrect exchange rate or not enough parameters!");
+            rate = Double.parseDouble(req.getParameter("rate"));
+
+            if (!ValidationUtil.isExchangeRateCodeValid(exchangeRateCode)) {
+                throw new ValidationException("Incorrect exchange rate!");
             }
+
             String baseCurrencyCode = exchangeRateCode.substring(0,3);
             String targetCurrencyCode = exchangeRateCode.substring(3, 6);
 
-            if (currencyDAO.findCurrencyByCode(baseCurrencyCode) != null &&
-            currencyDAO.findCurrencyByCode(targetCurrencyCode) != null) {
-                exchangeRateDao.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
-            } else {
-                ResponseHandlingUtil.currencyNotFoundMessage(resp);
+            exchangeRateDao.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
+            ExchangeRate exchangeRate = exchangeRateDao.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
+            if (exchangeRate != null) {
+                Utils.setResponse(resp, exchangeRate, 200, "application/x-www-form-urlencoded", "Rate successfully updated!");
             }
+
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        } catch (ParamNotFoundException e) {
+            ResponseHandlingUtil.sendError(resp, 400, e.getMessage());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
+        } catch (NumberFormatException e) {
+            ResponseHandlingUtil.notEnoughParametersMessage(resp);
         }
     }
 

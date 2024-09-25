@@ -1,13 +1,11 @@
 package aslmk.Servlets;
 
-import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeDAO;
-import aslmk.DAO.ExchangeRateDAO;
-import aslmk.Database;
 import aslmk.Models.Exchange;
 import aslmk.Utils.*;
+import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
+import aslmk.Utils.Exceptions.ValidationException;
 import com.google.gson.Gson;
-import jdk.jshell.execution.Util;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -27,15 +25,12 @@ public class ExchangeServlet extends HttpServlet {
         double amount = Double.parseDouble(req.getParameter("amount"));
 
         try {
-            if (!ValidationUtil.isExchangeRateParameters(fromCurrency, toCurrency, amount)) {
+            if (!ValidationUtil.isExchangeRateParametersValid(fromCurrency, toCurrency, amount)) {
                 throw new ValidationException();
             } else {
                 Exchange exchange = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
                 if (exchange != null) {
-                    Utils.postResponse(resp, 200);
-                    PrintWriter pw = resp.getWriter();
-                    Gson gson = new Gson();
-                    pw.write(gson.toJson(exchange));
+                    Utils.setResponse(resp, exchange, 200, "application/x-www-form-urlencoded");
                 }
             }
         } catch (ValidationException e) {

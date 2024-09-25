@@ -1,4 +1,4 @@
-package aslmk.Utils;
+package aslmk.Utils.Exceptions;
 
 public class ValidationException extends RuntimeException {
     public ValidationException() {

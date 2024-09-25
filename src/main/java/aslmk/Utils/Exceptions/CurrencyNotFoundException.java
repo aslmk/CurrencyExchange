@@ -1,4 +1,4 @@
-package aslmk.Utils;
+package aslmk.Utils.Exceptions;
 
 public class CurrencyNotFoundException extends RuntimeException {
     public CurrencyNotFoundException(String message) {

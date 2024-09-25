@@ -10,7 +10,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class CurrencyDAO {
-    //Database database = database.getInstance();
     private static Database database = Database.getInstance();
 
     public void addCurrency(String fullName, String code, String sign) throws SQLException {
@@ -67,22 +66,6 @@ public class CurrencyDAO {
         }
 
         return null;
-    }
-    private boolean currencyExists(String fullName, String code, String sign) {
-        String query = "SELECT * FROM Currencies WHERE fullName = ? AND code = ? AND sign = ? LIMIT 1;";
-
-        try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
-            prStm.setString(1, fullName);
-            prStm.setString(2, code);
-            prStm.setString(3, sign);
-            try (ResultSet rs = prStm.executeQuery()) {
-                // Если запись найдена, вернётся хотя бы одна строка
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false; // Если произошла ошибка, можно также вернуть false
-        }
     }
 
 }

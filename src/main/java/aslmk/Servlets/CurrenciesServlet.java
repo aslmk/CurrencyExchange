@@ -3,7 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
-import aslmk.Utils.ValidationException;
+import aslmk.Utils.Exceptions.ValidationException;
 import aslmk.Utils.ValidationUtil;
 
 import javax.servlet.ServletConfig;
@@ -32,7 +32,7 @@ public class CurrenciesServlet extends HttpServlet {
         String currencySign = req.getParameter("sign");
 
         try {
-            if (!ValidationUtil.isParameters(currencyFullName, currencyCode, currencySign)) {
+            if (!ValidationUtil.isCurrencyParametersValid(currencyFullName, currencyCode, currencySign)) {
                 throw new ValidationException();
             }
             currencyDAO.addCurrency(currencyFullName, currencyCode, currencySign);

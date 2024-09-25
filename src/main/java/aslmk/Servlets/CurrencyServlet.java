@@ -3,11 +3,10 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.Models.Currency;
 import aslmk.Service.CurrencyService;
-import aslmk.Utils.ValidationException;
+import aslmk.Utils.Exceptions.ValidationException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
 import aslmk.Utils.ValidationUtil;
-import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 
 public class CurrencyServlet extends HttpServlet {
@@ -27,7 +25,7 @@ public class CurrencyServlet extends HttpServlet {
         String currencyCode = Utils.getCurrencyCodeFromURL(pathInfo);
 
         try {
-            if (!ValidationUtil.isCurrencyCode(currencyCode)) {
+            if (!ValidationUtil.isCurrencyCodeValid(currencyCode)) {
                 throw new ValidationException("It is not currency code!");
             }
             Currency targetCurrency = currencyDAO.findCurrencyByCode(currencyCode);

@@ -2,10 +2,9 @@ package aslmk.Servlets;
 
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
-import aslmk.Database;
 import aslmk.Utils.*;
-import com.google.gson.Gson;
-import jdk.jshell.execution.Util;
+import aslmk.Utils.Exceptions.CurrencyNotFoundException;
+import aslmk.Utils.Exceptions.ValidationException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 
 public class ExchangeRatesServlet extends HttpServlet {
@@ -34,7 +32,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         String targetCurrencyCode = req.getParameter("targetCurrencyCode");
         double rate = Double.parseDouble(req.getParameter("rate"));
         try {
-            if (!ValidationUtil.isExchangeRateParameters(baseCurrencyCode, targetCurrencyCode, rate)) {
+            if (!ValidationUtil.isExchangeRateParametersValid(baseCurrencyCode, targetCurrencyCode, rate)) {
                 throw new ValidationException("Incorrect or not enough parameters!");
             }
 

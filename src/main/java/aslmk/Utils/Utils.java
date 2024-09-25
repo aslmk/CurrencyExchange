@@ -39,6 +39,7 @@ public class Utils {
         PrintWriter pw = resp.getWriter();
         Gson gson = new Gson();
         pw.write(gson.toJson(object));
+        pw.flush();
     }
     public static void postResponse(HttpServletResponse resp, int statusCode) throws IOException {
         resp.setStatus(statusCode);
@@ -46,6 +47,25 @@ public class Utils {
         resp.setCharacterEncoding("UTF-8");
         PrintWriter pw = resp.getWriter();
         pw.write("{\"message\": \"" + "Currency successfully added!" + "\"}");
+        pw.flush();
+    }
+    public static void setResponse(HttpServletResponse resp, Object object, int statusCode, String contentType, String message) throws IOException {
+        resp.setStatus(statusCode);
+        resp.setContentType(contentType);
+        resp.setCharacterEncoding("UTF-8");
+        Gson gson = new Gson();
+        PrintWriter pw = resp.getWriter();
+        pw.write("{\"message\": \"" + message + "\"}");
+        pw.write(gson.toJson(object));
+        pw.flush();
+    }
+    public static void setResponse(HttpServletResponse resp, Object object, int statusCode, String contentType) throws IOException {
+        resp.setStatus(statusCode);
+        resp.setContentType(contentType);
+        resp.setCharacterEncoding("UTF-8");
+        Gson gson = new Gson();
+        PrintWriter pw = resp.getWriter();
+        pw.write(gson.toJson(object));
         pw.flush();
     }
 }

@@ -3,6 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Models.ExchangeRate;
+import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 import aslmk.Utils.Exceptions.ParamNotFoundException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
@@ -23,7 +24,7 @@ public class ExchangeRateServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
-        String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
+        String exchangeRateCode = Utils.extractCodeFromURL(pathInfo);
 
         try {
             if (!ValidationUtil.isExchangeRateCodeValid(exchangeRateCode)) {
@@ -35,36 +36,17 @@ public class ExchangeRateServlet extends HttpServlet {
                 if (exchangeRate != null) {
                     Utils.setResponse(resp, exchangeRate);
                 } else {
-                    ResponseHandlingUtil.currencyNotFoundMessage(resp);
+                    //ResponseHandlingUtil.currencyNotFoundMessage(resp);
+                    throw new ExchangeRateNotFoundException("Exchange rate not found.");
                 }
             }
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
+        } catch (ExchangeRateNotFoundException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         }
-
-
-//        else {
-//            String baseCurrencyCode = exchangeRateCode.substring(0,3);
-//            String targetCurrencyCode = exchangeRateCode.substring(3, 6);
-//            if (database.openConnection()) {
-//                ExchangeRate exchangeRate = repository.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
-//                if (exchangeRate != null) {
-//                    resp.setStatus(200); // Успех
-//                    jsonData = gson.toJson(exchangeRate);
-//                    pw.write(jsonData);
-//                } else {
-//                    resp.setStatus(404);
-//                }
-//            } else {
-//                resp.setStatus(500);
-//            }
-//            database.closeConnection();
-//
-//
-//        }
-
     }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -82,7 +64,7 @@ public class ExchangeRateServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         String pathInfo = req.getPathInfo();
-        String exchangeRateCode = Utils.getExchangeRateCodeFromURL(pathInfo);
+        String exchangeRateCode = Utils.extractCodeFromURL(pathInfo);
         double rate;
 
         try {
@@ -98,13 +80,12 @@ public class ExchangeRateServlet extends HttpServlet {
             exchangeRateDao.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
             ExchangeRate exchangeRate = exchangeRateDao.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
             if (exchangeRate != null) {
-                Utils.setResponse(resp, exchangeRate, 200, "application/x-www-form-urlencoded", "Rate successfully updated!");
+                Utils.setResponse(resp, exchangeRate, HttpServletResponse.SC_OK, "application/x-www-form-urlencoded", "Rate successfully updated!");
+                //Utils.postResponse();
             }
 
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        } catch (ParamNotFoundException e) {
-            ResponseHandlingUtil.sendError(resp, 400, e.getMessage());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (NumberFormatException e) {

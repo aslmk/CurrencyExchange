@@ -36,7 +36,8 @@ public class CurrenciesServlet extends HttpServlet {
                 throw new ValidationException();
             }
             currencyDAO.addCurrency(currencyFullName, currencyCode, currencySign);
-            Utils.postResponse(resp, 201);
+            Utils.postResponse(resp, HttpServletResponse.SC_CREATED, "Currency successfully created.");
+            //Utils.setResponse(resp, HttpServletResponse.SC_CREATED, "", "Currency successfully created.");
         } catch (ValidationException e) {
             ResponseHandlingUtil.notEnoughParametersMessage(resp);
         } catch (SQLException e) {
@@ -47,17 +48,6 @@ public class CurrenciesServlet extends HttpServlet {
                 ResponseHandlingUtil.alreadyExistsMessage(resp);
             }
         }
-
-//        else {
-//            if (database.openConnection()) {
-//                if (repository.addCurrency(currencyFullName, currencyCode, currencySign)) resp.setStatus(201);
-//                else resp.setStatus(409);// if true then status 201 else 409
-//            } else {
-//                resp.setStatus(500);
-//            }
-//            database.closeConnection();
-//        }
-
     }
 
     @Override

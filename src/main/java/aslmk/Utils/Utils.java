@@ -7,29 +7,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class Utils {
-    public static String getCurrencyCodeFromURL(String url) {
+    public static String extractCodeFromURL(String url) {
         if (url == null || url.isEmpty()) {
             return null;
         }
-        String currencyUrl = url.substring(1);
+        String substring = url.substring(1);
 
-        if (currencyUrl.isEmpty() || currencyUrl.contains("/")) {
+        if (substring.isEmpty() || substring.contains("/")) {
             return null;
         }
-        return currencyUrl;
-
-    }
-    public static String getExchangeRateCodeFromURL(String url) {
-        if (url == null || url.equals("/")) {
-            return "";
-        }
-        String exchangeRateUrl = url.substring(1);
-
-        if (exchangeRateUrl.contains("/")) {
-            //currencyUrl = currencyUrl.substring(, url.indexOf("/"));
-            return "";
-        }
-        return exchangeRateUrl;
+        return substring;
 
     }
 
@@ -41,12 +28,12 @@ public class Utils {
         pw.write(gson.toJson(object));
         pw.flush();
     }
-    public static void postResponse(HttpServletResponse resp, int statusCode) throws IOException {
+    public static void postResponse(HttpServletResponse resp, int statusCode, String message) throws IOException {
         resp.setStatus(statusCode);
         resp.setContentType("application/x-www-form-urlencoded");
         resp.setCharacterEncoding("UTF-8");
         PrintWriter pw = resp.getWriter();
-        pw.write("{\"message\": \"" + "Currency successfully added!" + "\"}");
+        pw.write("{\"message\": \"" + message + "\"}");
         pw.flush();
     }
     public static void setResponse(HttpServletResponse resp, Object object, int statusCode, String contentType, String message) throws IOException {
@@ -66,6 +53,14 @@ public class Utils {
         Gson gson = new Gson();
         PrintWriter pw = resp.getWriter();
         pw.write(gson.toJson(object));
+        pw.flush();
+    }
+    public static void setResponse(HttpServletResponse resp, int statusCode, String contentType, String message) throws IOException {
+        resp.setStatus(statusCode);
+        resp.setContentType(contentType);
+        resp.setCharacterEncoding("UTF-8");
+        PrintWriter pw = resp.getWriter();
+        pw.write("{\"message\": \"" + message + "\"}");
         pw.flush();
     }
 }

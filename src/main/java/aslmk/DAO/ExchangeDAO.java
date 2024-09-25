@@ -1,7 +1,7 @@
 package aslmk.DAO;
 
 import aslmk.Database;
-import aslmk.Models.Exchange;
+import aslmk.DTO.ExchangeDTO;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 
 import java.sql.PreparedStatement;
@@ -11,11 +11,11 @@ import java.sql.SQLException;
 public class ExchangeDAO {
     CurrencyDAO currencyDAO = new CurrencyDAO();
     private static Database database = Database.getInstance();
-    public Exchange exchange(String baseCurrencyCode, String targetCurrencyCode, double amount) throws SQLException, ExchangeRateNotFoundException {
+    public ExchangeDTO exchange(String baseCurrencyCode, String targetCurrencyCode, double amount) throws SQLException, ExchangeRateNotFoundException {
         double rate = getExchangeRate(baseCurrencyCode, targetCurrencyCode);
         double convertedAmount = calculateConvertedAmount(rate, amount);
 
-        return new Exchange(
+        return new ExchangeDTO(
                 currencyDAO.findCurrencyByCode(baseCurrencyCode),
                 currencyDAO.findCurrencyByCode(targetCurrencyCode),
                 rate,

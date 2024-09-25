@@ -1,11 +1,10 @@
 package aslmk.Servlets;
 
 import aslmk.DAO.ExchangeDAO;
-import aslmk.Models.Exchange;
+import aslmk.DTO.ExchangeDTO;
 import aslmk.Utils.*;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 import aslmk.Utils.Exceptions.ValidationException;
-import com.google.gson.Gson;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -13,7 +12,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
@@ -28,9 +26,9 @@ public class ExchangeServlet extends HttpServlet {
             if (!ValidationUtil.isExchangeRateParametersValid(fromCurrency, toCurrency, amount)) {
                 throw new ValidationException();
             } else {
-                Exchange exchange = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
-                if (exchange != null) {
-                    Utils.setResponse(resp, exchange, 200, "application/x-www-form-urlencoded");
+                ExchangeDTO exchangeDTO = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
+                if (exchangeDTO != null) {
+                    Utils.setResponse(resp, exchangeDTO, HttpServletResponse.SC_OK, "application/x-www-form-urlencoded");
                 }
             }
         } catch (ValidationException e) {
@@ -38,7 +36,7 @@ public class ExchangeServlet extends HttpServlet {
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (ExchangeRateNotFoundException e) {
-            ResponseHandlingUtil.sendError(resp, 404, e.getMessage());
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         }
     }
 

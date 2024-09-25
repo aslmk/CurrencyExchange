@@ -3,6 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.Models.Currency;
 import aslmk.Service.CurrencyService;
+import aslmk.Utils.Exceptions.CurrencyNotFoundException;
 import aslmk.Utils.Exceptions.ValidationException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
@@ -18,26 +19,28 @@ import java.sql.SQLException;
 
 public class CurrencyServlet extends HttpServlet {
     private CurrencyDAO currencyDAO = new CurrencyDAO();
-    private CurrencyService currencyService = new CurrencyService();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
-        String currencyCode = Utils.getCurrencyCodeFromURL(pathInfo);
+        String currencyCode = Utils.extractCodeFromURL(pathInfo);
 
         try {
             if (!ValidationUtil.isCurrencyCodeValid(currencyCode)) {
-                throw new ValidationException("It is not currency code!");
+                throw new ValidationException("Invalid currency code.");
             }
             Currency targetCurrency = currencyDAO.findCurrencyByCode(currencyCode);
             if (targetCurrency != null) {
                 Utils.setResponse(resp, targetCurrency);
             } else {
-                ResponseHandlingUtil.currencyNotFoundMessage(resp);
+                //ResponseHandlingUtil.currencyNotFoundMessage(resp);
+                throw new CurrencyNotFoundException("Currency not found.");
             }
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, resp.SC_BAD_REQUEST, e.getMessage());
+        } catch (CurrencyNotFoundException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
         }
     }
 

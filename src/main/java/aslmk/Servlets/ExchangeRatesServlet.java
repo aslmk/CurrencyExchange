@@ -33,11 +33,12 @@ public class ExchangeRatesServlet extends HttpServlet {
         double rate = Double.parseDouble(req.getParameter("rate"));
         try {
             if (!ValidationUtil.isExchangeRateParametersValid(baseCurrencyCode, targetCurrencyCode, rate)) {
-                throw new ValidationException("Incorrect or not enough parameters!");
+                throw new ValidationException("Incorrect parameters!");
             }
 
             exchangeRateDAO.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);
-            Utils.postResponse(resp, 201);
+            Utils.postResponse(resp, HttpServletResponse.SC_CREATED, "Exchange rate successfully added.");
+            //Utils.setResponse(resp, HttpServletResponse.SC_CREATED, "application/x-www-form-urlencoded", "Exchange rate successfully added.");
 
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());

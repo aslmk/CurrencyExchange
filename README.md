@@ -1,5 +1,5 @@
 <h1 align='center'>
-  Currency exchange project.
+Currency exchange project.
 </h1>
 
 ## Overview

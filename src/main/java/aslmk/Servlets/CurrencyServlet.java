@@ -4,6 +4,7 @@ import aslmk.DAO.CurrencyDAO;
 import aslmk.Models.Currency;
 import aslmk.Service.CurrencyService;
 import aslmk.Utils.Exceptions.CurrencyNotFoundException;
+import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ValidationException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
@@ -40,6 +41,8 @@ public class CurrencyServlet extends HttpServlet {
             ResponseHandlingUtil.sendError(resp, resp.SC_BAD_REQUEST, e.getMessage());
         } catch (CurrencyNotFoundException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

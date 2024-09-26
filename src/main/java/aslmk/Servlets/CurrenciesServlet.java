@@ -1,6 +1,7 @@
 package aslmk.Servlets;
 
 import aslmk.DAO.CurrencyDAO;
+import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
 import aslmk.Utils.Exceptions.ValidationException;
@@ -22,6 +23,8 @@ public class CurrenciesServlet extends HttpServlet {
             Utils.setResponse(resp, currencyDAO.getCurrencies());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -30,7 +33,7 @@ public class CurrenciesServlet extends HttpServlet {
         String currencyFullName = req.getParameter("name");
         String currencyCode = req.getParameter("code").toUpperCase().trim();
         String currencySign = req.getParameter("sign");
-
+        // TODO : message currency created not showing.
         try {
             if (!ValidationUtil.isCurrencyParametersValid(currencyFullName, currencyCode, currencySign)) {
                 throw new ValidationException("Incorrect parameters!");
@@ -46,6 +49,8 @@ public class CurrenciesServlet extends HttpServlet {
             } else if (errorCode == 19) { // SQL constraint
                 ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_CONFLICT, "Currency already exists.");
             }
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

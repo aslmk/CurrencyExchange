@@ -4,22 +4,22 @@ import aslmk.Database;
 import aslmk.Models.Currency;
 import aslmk.Models.ExchangeRate;
 import aslmk.Utils.Exceptions.CurrencyNotFoundException;
+import aslmk.Utils.Exceptions.DatabaseException;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class ExchangeRateDAO {
-    Database database = Database.getInstance();
     CurrencyDAO currencyDAO = new CurrencyDAO();
 
-    public void addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, Double rate) throws SQLException {
+    public void addExchangeRate(String baseCurrencyCode, String targetCurrencyCode, Double rate) throws SQLException, DatabaseException {
         String query = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?);";
 
         Currency baseCurrency = currencyDAO.findCurrencyByCode(baseCurrencyCode);
         Currency targetCurrency = currencyDAO.findCurrencyByCode(targetCurrencyCode);
+
+        Database.isConnectionPoolCreated();
+        Connection connection = Database.getConnection();
 
         if (baseCurrency == null) {
             throw new CurrencyNotFoundException("Base currency not found: " + baseCurrencyCode);
@@ -28,7 +28,7 @@ public class ExchangeRateDAO {
             throw new CurrencyNotFoundException("Target currency not found: " + targetCurrencyCode);
         }
 
-        try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
+        try (PreparedStatement prStm = connection.prepareStatement(query)) {
             int baseCurrencyId = baseCurrency.id();
             int targetCurrencyId = targetCurrency.id();
 
@@ -36,13 +36,18 @@ public class ExchangeRateDAO {
             prStm.setInt(2, targetCurrencyId);
             prStm.setDouble(3, rate);
 
-            prStm.execute();
+            prStm.executeUpdate();
+        } finally {
+            Database.releaseConnection(connection);
         }
     }
-    public ArrayList<ExchangeRate> getExchangeRates() throws SQLException {
+    public ArrayList<ExchangeRate> getExchangeRates() throws SQLException, DatabaseException {
         ArrayList<ExchangeRate> exchangeRates = new ArrayList<>();
         String query = "SELECT * FROM ExchangeRates";
-        try (Statement stm = database.getConnection().createStatement()) {
+        Database.isConnectionPoolCreated();
+        Connection connection = Database.getConnection();
+
+        try (Statement stm = connection.createStatement()) {
             ResultSet rs = stm.executeQuery(query);
             while (rs.next()) {
                 int exchangeRateId = rs.getInt("id");
@@ -51,17 +56,22 @@ public class ExchangeRateDAO {
                 double rate = rs.getDouble("Rate");
                 exchangeRates.add(new ExchangeRate(exchangeRateId, baseCurrency, targetCurrency, rate));
             }
+        } finally {
+            Database.releaseConnection(connection);
         }
         return exchangeRates;
     }
-    public ExchangeRate findExchangeRateByCode(String baseCurrencyCode, String targetCurrencyCode) throws SQLException {
+    public ExchangeRate findExchangeRateByCode(String baseCurrencyCode, String targetCurrencyCode) throws SQLException, DatabaseException {
         int baseCurrencyId = currencyDAO.findCurrencyByCode(baseCurrencyCode).id();
         int targetCurrencyId = currencyDAO.findCurrencyByCode(targetCurrencyCode).id();
+
+        Database.isConnectionPoolCreated();
+        Connection connection = Database.getConnection();
 
         String query = "SELECT * FROM ExchangeRates " +
                 "WHERE BaseCurrencyId="+baseCurrencyId+" AND TargetCurrencyId="+targetCurrencyId+";";
 
-        try (Statement stm = database.getConnection().createStatement()) {
+        try (Statement stm = connection.createStatement()) {
             ResultSet rs = stm.executeQuery(query);
             if (rs.next()) {
                 return new ExchangeRate(rs.getInt("id"),
@@ -69,12 +79,17 @@ public class ExchangeRateDAO {
                         currencyDAO.findCurrencyById(rs.getInt("TargetCurrencyId")),
                         rs.getDouble("Rate"));
             }
+        } finally {
+            Database.releaseConnection(connection);
         }
         return null;
     }
-    public void updateRate(String baseCurrencyCode, String targetCurrencyCode, double rate) throws SQLException {
+    public void updateRate(String baseCurrencyCode, String targetCurrencyCode, double rate) throws SQLException, DatabaseException {
         Currency baseCurrency = currencyDAO.findCurrencyByCode(baseCurrencyCode);
         Currency targetCurrency = currencyDAO.findCurrencyByCode(targetCurrencyCode);
+
+        Database.isConnectionPoolCreated();
+        Connection connection = Database.getConnection();
 
         if (baseCurrency == null) {
             throw new CurrencyNotFoundException("Base currency not found: " + baseCurrencyCode);
@@ -89,11 +104,13 @@ public class ExchangeRateDAO {
         String query = "UPDATE ExchangeRates SET Rate=? " +
                 "WHERE BaseCurrencyId=? AND TargetCurrencyId=?;";
 
-        try (PreparedStatement prStm = database.getConnection().prepareStatement(query)) {
+        try (PreparedStatement prStm = connection.prepareStatement(query)) {
             prStm.setDouble(1, rate);
             prStm.setInt(2, baseCurrencyId);
             prStm.setInt(3, targetCurrencyId);
-            prStm.execute();
+            prStm.executeUpdate();
+        } finally {
+            Database.releaseConnection(connection);
         }
     }
 }

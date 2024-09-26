@@ -3,6 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.ExchangeDAO;
 import aslmk.DTO.ExchangeDTO;
 import aslmk.Utils.*;
+import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 import aslmk.Utils.Exceptions.ValidationException;
 
@@ -38,6 +39,8 @@ public class ExchangeServlet extends HttpServlet {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (ExchangeRateNotFoundException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

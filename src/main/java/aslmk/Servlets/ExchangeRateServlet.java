@@ -3,6 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Models.ExchangeRate;
+import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 import aslmk.Utils.Exceptions.ParamNotFoundException;
 import aslmk.Utils.ResponseHandlingUtil;
@@ -36,7 +37,6 @@ public class ExchangeRateServlet extends HttpServlet {
                 if (exchangeRate != null) {
                     Utils.setResponse(resp, exchangeRate);
                 } else {
-                    //ResponseHandlingUtil.currencyNotFoundMessage(resp);
                     throw new ExchangeRateNotFoundException("Exchange rate not found.");
                 }
             }
@@ -46,6 +46,8 @@ public class ExchangeRateServlet extends HttpServlet {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (ExchangeRateNotFoundException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
     @Override
@@ -88,6 +90,8 @@ public class ExchangeRateServlet extends HttpServlet {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

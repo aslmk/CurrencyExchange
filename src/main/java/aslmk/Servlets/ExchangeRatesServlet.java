@@ -4,6 +4,7 @@ import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Utils.*;
 import aslmk.Utils.Exceptions.CurrencyNotFoundException;
+import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ValidationException;
 
 import javax.servlet.ServletConfig;
@@ -22,6 +23,8 @@ public class ExchangeRatesServlet extends HttpServlet {
             Utils.setResponse(resp, exchangeRateDAO.getExchangeRates());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
@@ -51,6 +54,8 @@ public class ExchangeRatesServlet extends HttpServlet {
             }
         } catch (CurrencyNotFoundException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        } catch (DatabaseException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

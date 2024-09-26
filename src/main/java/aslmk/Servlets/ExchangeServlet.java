@@ -18,21 +18,22 @@ public class ExchangeServlet extends HttpServlet {
     ExchangeDAO exchangeDAO = new ExchangeDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String fromCurrency = req.getParameter("from");
-        String toCurrency = req.getParameter("to");
-        double amount = Double.parseDouble(req.getParameter("amount"));
+        String fromCurrency = req.getParameter("from").toUpperCase().trim();
+        String toCurrency = req.getParameter("to").toUpperCase().trim();
 
         try {
+            double amount = Double.parseDouble(req.getParameter("amount"));
+
             if (!ValidationUtil.isExchangeRateParametersValid(fromCurrency, toCurrency, amount)) {
-                throw new ValidationException();
+                throw new ValidationException("Incorrect parameters!");
             } else {
                 ExchangeDTO exchangeDTO = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
                 if (exchangeDTO != null) {
                     Utils.setResponse(resp, exchangeDTO, HttpServletResponse.SC_OK, "application/x-www-form-urlencoded");
                 }
             }
-        } catch (ValidationException e) {
-            ResponseHandlingUtil.notEnoughParametersMessage(resp);
+        } catch (ValidationException | NumberFormatException e) {
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (ExchangeRateNotFoundException e) {

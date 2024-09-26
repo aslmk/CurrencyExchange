@@ -61,17 +61,14 @@ public class ExchangeRateServlet extends HttpServlet {
     }
 
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setCharacterEncoding("UTF-8");
-
-        String pathInfo = req.getPathInfo();
+        String pathInfo = req.getPathInfo().toUpperCase().trim();
         String exchangeRateCode = Utils.extractCodeFromURL(pathInfo);
-        double rate;
 
         try {
-            rate = Double.parseDouble(req.getParameter("rate"));
+            double rate = Double.parseDouble(req.getParameter("rate"));
 
             if (!ValidationUtil.isExchangeRateCodeValid(exchangeRateCode)) {
-                throw new ValidationException("Incorrect exchange rate!");
+                throw new ValidationException("Incorrect parameters!");
             }
 
             String baseCurrencyCode = exchangeRateCode.substring(0,3);
@@ -80,16 +77,17 @@ public class ExchangeRateServlet extends HttpServlet {
             exchangeRateDao.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
             ExchangeRate exchangeRate = exchangeRateDao.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
             if (exchangeRate != null) {
-                Utils.setResponse(resp, exchangeRate, HttpServletResponse.SC_OK, "application/x-www-form-urlencoded", "Rate successfully updated!");
-                //Utils.postResponse();
+                Utils.setResponse(resp,
+                        exchangeRate,
+                        HttpServletResponse.SC_OK,
+                        "application/x-www-form-urlencoded",
+                        "Rate successfully updated!");
             }
 
-        } catch (ValidationException e) {
+        } catch (ValidationException | NumberFormatException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
-        } catch (NumberFormatException e) {
-            ResponseHandlingUtil.notEnoughParametersMessage(resp);
         }
     }
 

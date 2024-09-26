@@ -21,7 +21,7 @@ public class CurrencyServlet extends HttpServlet {
     private CurrencyDAO currencyDAO = new CurrencyDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+        String pathInfo = req.getPathInfo().toUpperCase().trim();
         String currencyCode = Utils.extractCodeFromURL(pathInfo);
 
         try {
@@ -32,7 +32,6 @@ public class CurrencyServlet extends HttpServlet {
             if (targetCurrency != null) {
                 Utils.setResponse(resp, targetCurrency);
             } else {
-                //ResponseHandlingUtil.currencyNotFoundMessage(resp);
                 throw new CurrencyNotFoundException("Currency not found.");
             }
         } catch (SQLException e) {

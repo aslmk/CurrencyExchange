@@ -19,14 +19,5 @@ public class ResponseHandlingUtil {
     public static void dataBaseMessage(HttpServletResponse resp) throws IOException {
         sendError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Something wrong with database!");
     }
-    public static void currencyNotFoundMessage(HttpServletResponse resp) throws IOException {
-        sendError(resp, HttpServletResponse.SC_NOT_FOUND, "Currency not found!");
-    }
-    public static void notEnoughParametersMessage(HttpServletResponse resp) throws IOException {
-        sendError(resp, HttpServletResponse.SC_BAD_REQUEST, "Not enough parameters!");
-    }
-    public static void alreadyExistsMessage(HttpServletResponse resp) throws IOException {
-        sendError(resp, HttpServletResponse.SC_CONFLICT, "Currency already exists!");
-    }
 
 }

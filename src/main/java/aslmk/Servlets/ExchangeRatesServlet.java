@@ -16,7 +16,6 @@ import java.sql.SQLException;
 
 public class ExchangeRatesServlet extends HttpServlet {
     ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
-    CurrencyDAO currencyDAO = new CurrencyDAO();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
@@ -28,26 +27,27 @@ public class ExchangeRatesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String baseCurrencyCode = req.getParameter("baseCurrencyCode");
-        String targetCurrencyCode = req.getParameter("targetCurrencyCode");
-        double rate = Double.parseDouble(req.getParameter("rate"));
+        String baseCurrencyCode = req.getParameter("baseCurrencyCode").toUpperCase().trim();
+        String targetCurrencyCode = req.getParameter("targetCurrencyCode").toUpperCase().trim();
+
         try {
+            double rate = Double.parseDouble(req.getParameter("rate"));
+
             if (!ValidationUtil.isExchangeRateParametersValid(baseCurrencyCode, targetCurrencyCode, rate)) {
                 throw new ValidationException("Incorrect parameters!");
             }
 
             exchangeRateDAO.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);
             Utils.postResponse(resp, HttpServletResponse.SC_CREATED, "Exchange rate successfully added.");
-            //Utils.setResponse(resp, HttpServletResponse.SC_CREATED, "application/x-www-form-urlencoded", "Exchange rate successfully added.");
 
-        } catch (ValidationException e) {
+        } catch (ValidationException | NumberFormatException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (SQLException e) {
             int errorCode = e.getErrorCode();
             if (errorCode == 14) { // SQL Internal server error
                 ResponseHandlingUtil.dataBaseMessage(resp);
             } else if (errorCode == 19) { // SQL constraint
-                ResponseHandlingUtil.alreadyExistsMessage(resp);
+                ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_CONFLICT, "Exchange rate already exists.");
             }
         } catch (CurrencyNotFoundException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_NOT_FOUND, e.getMessage());

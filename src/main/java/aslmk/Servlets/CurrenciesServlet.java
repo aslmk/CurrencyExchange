@@ -28,24 +28,23 @@ public class CurrenciesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String currencyFullName = req.getParameter("name");
-        String currencyCode = req.getParameter("code");
+        String currencyCode = req.getParameter("code").toUpperCase().trim();
         String currencySign = req.getParameter("sign");
 
         try {
             if (!ValidationUtil.isCurrencyParametersValid(currencyFullName, currencyCode, currencySign)) {
-                throw new ValidationException();
+                throw new ValidationException("Incorrect parameters!");
             }
             currencyDAO.addCurrency(currencyFullName, currencyCode, currencySign);
             Utils.postResponse(resp, HttpServletResponse.SC_CREATED, "Currency successfully created.");
-            //Utils.setResponse(resp, HttpServletResponse.SC_CREATED, "", "Currency successfully created.");
         } catch (ValidationException e) {
-            ResponseHandlingUtil.notEnoughParametersMessage(resp);
+            ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (SQLException e) {
             int errorCode = e.getErrorCode();
             if (errorCode == 14) { // SQL Internal server error
                 ResponseHandlingUtil.dataBaseMessage(resp);
             } else if (errorCode == 19) { // SQL constraint
-                ResponseHandlingUtil.alreadyExistsMessage(resp);
+                ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_CONFLICT, "Currency already exists.");
             }
         }
     }

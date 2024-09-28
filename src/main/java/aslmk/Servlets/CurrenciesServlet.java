@@ -33,7 +33,7 @@ public class CurrenciesServlet extends HttpServlet {
         String currencyFullName = req.getParameter("name");
         String currencyCode = req.getParameter("code").toUpperCase().trim();
         String currencySign = req.getParameter("sign");
-        // TODO : message currency created not showing.
+
         try {
             if (!ValidationUtil.isCurrencyParametersValid(currencyFullName, currencyCode, currencySign)) {
                 throw new ValidationException("Incorrect parameters!");

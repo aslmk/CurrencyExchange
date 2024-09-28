@@ -1,0 +1,191 @@
+{
+	"info": {
+		"_postman_id": "216f8c57-ad2c-4f73-a4a0-0ff2de103ccd",
+		"name": "CurrencyExchange project REST API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32422988"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/currencies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/currencies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/currency/KZT",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/currency/KZT",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"currency",
+						"KZT"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/currencies?name=testCurrency&code=NGR&sign=æ",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "nini",
+							"value": "negri",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/currencies?name=testCurrency&code=NGR&sign=æ",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"currencies"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "testCurrency"
+						},
+						{
+							"key": "code",
+							"value": "NGR"
+						},
+						{
+							"key": "sign",
+							"value": "æ"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/exchangeRates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchangeRates",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/exchangeRate/KZTRUB",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchangeRate/KZTRUB",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRate",
+						"KZTRUB"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/exchangeRates?baseCurrencyCode=USD&targetCurrencyCode=RUB&rate=91.43",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchangeRates?baseCurrencyCode=USD&targetCurrencyCode=RUB&rate=91.43",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRates"
+					],
+					"query": [
+						{
+							"key": "baseCurrencyCode",
+							"value": "USD"
+						},
+						{
+							"key": "targetCurrencyCode",
+							"value": "RUB"
+						},
+						{
+							"key": "rate",
+							"value": "91.43"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/exchangeRate/KZTRUB?rate=0.18",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchangeRate/KZTRUB?rate=0.18",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchangeRate",
+						"KZTRUB"
+					],
+					"query": [
+						{
+							"key": "rate",
+							"value": "0.18"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

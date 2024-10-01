@@ -2,6 +2,7 @@ package aslmk.Servlets;
 
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
+import aslmk.Service.Impl.ExchangeRateServiceImpl;
 import aslmk.Utils.*;
 import aslmk.Utils.Exceptions.CurrencyNotFoundException;
 import aslmk.Utils.Exceptions.DatabaseException;
@@ -16,11 +17,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class ExchangeRatesServlet extends HttpServlet {
-    ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
+    ExchangeRateServiceImpl exchangeRateService = new ExchangeRateServiceImpl();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Utils.setResponse(resp, exchangeRateDAO.getExchangeRates());
+            Utils.setResponse(resp, exchangeRateService.getExchangeRates());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (DatabaseException e) {
@@ -40,7 +41,7 @@ public class ExchangeRatesServlet extends HttpServlet {
                 throw new ValidationException("Incorrect parameters!");
             }
 
-            exchangeRateDAO.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);
+            exchangeRateService.addExchangeRate(baseCurrencyCode, targetCurrencyCode, rate);
             Utils.postResponse(resp, HttpServletResponse.SC_CREATED, "Exchange rate successfully added.");
 
         } catch (ValidationException | NumberFormatException e) {

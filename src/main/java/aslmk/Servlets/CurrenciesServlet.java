@@ -1,6 +1,6 @@
 package aslmk.Servlets;
 
-import aslmk.DAO.CurrencyDAO;
+import aslmk.Service.Impl.CurrencyServiceImpl;
 import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.ResponseHandlingUtil;
 import aslmk.Utils.Utils;
@@ -16,11 +16,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class CurrenciesServlet extends HttpServlet {
-    CurrencyDAO currencyDAO = new CurrencyDAO();
+    private CurrencyServiceImpl currencyService = new CurrencyServiceImpl();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            Utils.setResponse(resp, currencyDAO.getCurrencies());
+            Utils.setResponse(resp, currencyService.getCurrencies());
         } catch (SQLException e) {
             ResponseHandlingUtil.dataBaseMessage(resp);
         } catch (DatabaseException e) {
@@ -38,7 +38,7 @@ public class CurrenciesServlet extends HttpServlet {
             if (!ValidationUtil.isCurrencyParametersValid(currencyFullName, currencyCode, currencySign)) {
                 throw new ValidationException("Incorrect parameters!");
             }
-            currencyDAO.addCurrency(currencyFullName, currencyCode, currencySign);
+            currencyService.addCurrency(currencyFullName, currencyCode, currencySign);
             Utils.postResponse(resp, HttpServletResponse.SC_CREATED, "Currency successfully created.");
         } catch (ValidationException e) {
             ResponseHandlingUtil.sendError(resp, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());

@@ -1,7 +1,9 @@
-package aslmk.DAO;
+package aslmk.Service.Impl;
 
-import aslmk.Database;
+import aslmk.DAO.CurrencyDAO;
 import aslmk.DTO.ExchangeDTO;
+import aslmk.Database;
+import aslmk.Service.ExchangeService;
 import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 
@@ -10,8 +12,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ExchangeDAO {
+public class ExchangeServiceImpl implements ExchangeService {
     CurrencyDAO currencyDAO = new CurrencyDAO();
+
+    @Override
     public ExchangeDTO exchange(String baseCurrencyCode, String targetCurrencyCode, double amount) throws SQLException, ExchangeRateNotFoundException, DatabaseException {
         double rate = getExchangeRate(baseCurrencyCode, targetCurrencyCode);
         double convertedAmount = calculateConvertedAmount(rate, amount);
@@ -24,7 +28,6 @@ public class ExchangeDAO {
                 convertedAmount
         );
     }
-
     private double getExchangeRate(String baseCurrencyCode, String targetCurrencyCode) throws SQLException, ExchangeRateNotFoundException, DatabaseException {
         if (exchangeRateExists(baseCurrencyCode, targetCurrencyCode)) {
             return getRate(baseCurrencyCode, targetCurrencyCode);

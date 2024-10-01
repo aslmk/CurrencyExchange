@@ -3,6 +3,7 @@ package aslmk.Servlets;
 import aslmk.DAO.CurrencyDAO;
 import aslmk.DAO.ExchangeRateDAO;
 import aslmk.Models.ExchangeRate;
+import aslmk.Service.Impl.ExchangeRateServiceImpl;
 import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
 import aslmk.Utils.Exceptions.ParamNotFoundException;
@@ -21,7 +22,7 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 
 public class ExchangeRateServlet extends HttpServlet {
-    ExchangeRateDAO exchangeRateDao = new ExchangeRateDAO();
+    ExchangeRateServiceImpl exchangeRateService = new ExchangeRateServiceImpl();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
@@ -33,7 +34,7 @@ public class ExchangeRateServlet extends HttpServlet {
             } else {
                 String baseCurrencyCode = exchangeRateCode.substring(0,3);
                 String targetCurrencyCode = exchangeRateCode.substring(3, 6);
-                ExchangeRate exchangeRate = exchangeRateDao.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
+                ExchangeRate exchangeRate = exchangeRateService.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
                 if (exchangeRate != null) {
                     Utils.setResponse(resp, exchangeRate);
                 } else {
@@ -76,8 +77,8 @@ public class ExchangeRateServlet extends HttpServlet {
             String baseCurrencyCode = exchangeRateCode.substring(0,3);
             String targetCurrencyCode = exchangeRateCode.substring(3, 6);
 
-            exchangeRateDao.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
-            ExchangeRate exchangeRate = exchangeRateDao.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
+            exchangeRateService.updateRate(baseCurrencyCode, targetCurrencyCode, rate);
+            ExchangeRate exchangeRate = exchangeRateService.findExchangeRateByCode(baseCurrencyCode, targetCurrencyCode);
             if (exchangeRate != null) {
                 Utils.setResponse(resp,
                         exchangeRate,

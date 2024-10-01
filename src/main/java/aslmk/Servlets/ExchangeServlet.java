@@ -1,7 +1,7 @@
 package aslmk.Servlets;
 
-import aslmk.DAO.ExchangeDAO;
 import aslmk.DTO.ExchangeDTO;
+import aslmk.Service.Impl.ExchangeServiceImpl;
 import aslmk.Utils.*;
 import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ExchangeRateNotFoundException;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class ExchangeServlet extends HttpServlet {
-    ExchangeDAO exchangeDAO = new ExchangeDAO();
+    ExchangeServiceImpl exchangeService = new ExchangeServiceImpl();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String fromCurrency = req.getParameter("from").toUpperCase().trim();
@@ -28,7 +28,7 @@ public class ExchangeServlet extends HttpServlet {
             if (!ValidationUtil.isExchangeRateParametersValid(fromCurrency, toCurrency, amount)) {
                 throw new ValidationException("Incorrect parameters!");
             } else {
-                ExchangeDTO exchangeDTO = exchangeDAO.exchange(fromCurrency, toCurrency, amount);
+                ExchangeDTO exchangeDTO = exchangeService.exchange(fromCurrency, toCurrency, amount);
                 if (exchangeDTO != null) {
                     Utils.setResponse(resp, exchangeDTO, HttpServletResponse.SC_OK, "application/x-www-form-urlencoded");
                 }

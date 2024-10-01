@@ -1,8 +1,7 @@
 package aslmk.Servlets;
 
-import aslmk.DAO.CurrencyDAO;
 import aslmk.Models.Currency;
-import aslmk.Service.CurrencyService;
+import aslmk.Service.Impl.CurrencyServiceImpl;
 import aslmk.Utils.Exceptions.CurrencyNotFoundException;
 import aslmk.Utils.Exceptions.DatabaseException;
 import aslmk.Utils.Exceptions.ValidationException;
@@ -19,7 +18,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class CurrencyServlet extends HttpServlet {
-    private CurrencyDAO currencyDAO = new CurrencyDAO();
+    private CurrencyServiceImpl currencyService = new CurrencyServiceImpl();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo().toUpperCase().trim();
@@ -29,7 +28,7 @@ public class CurrencyServlet extends HttpServlet {
             if (!ValidationUtil.isCurrencyCodeValid(currencyCode)) {
                 throw new ValidationException("Invalid currency code.");
             }
-            Currency targetCurrency = currencyDAO.findCurrencyByCode(currencyCode);
+            Currency targetCurrency = currencyService.findCurrencyByCode(currencyCode);
             if (targetCurrency != null) {
                 Utils.setResponse(resp, targetCurrency);
             } else {
